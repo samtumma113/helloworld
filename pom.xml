@@ -1,0 +1,23 @@
+# go to repo root (where you created pom.xml)
+cd /var/lib/jenkins/workspace/Test-MVN-Build || exit
+
+# verify files exist
+ls -la pom.xml src/main/java || { echo "pom or src missing"; exit 1; }
+
+# git identity (set once)
+git config user.name "samtumma113"
+git config user.email "samtumma113@gmail.com"
+
+# init / add / commit
+git init 2>/dev/null || true
+git add pom.xml src/main/java -A
+git commit -m "Add minimal Maven pom and HelloWorld" || echo "nothing to commit"
+
+# set SSH remote and push (force if necessary)
+git remote remove origin 2>/dev/null || true
+git remote add origin git@github.com:samtumma113/helloworld.git
+git branch -M main
+
+# push using the Jenkins key you created earlier
+GIT_SSH_COMMAND='ssh -i /tmp/jenkins_id_ed25519 -o IdentitiesOnly=yes' \
+  git push -u origin main
